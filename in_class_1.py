@@ -102,6 +102,11 @@ df7 = df6.drop(df6.index[0])
 df7.rename(columns={'[Place': 'Place'},inplace=True)
 df7.rename(columns={' Team]': 'Team'},inplace=True)
 df7['Team'] = df7['Team'].str.strip(']')
+df7[' Name'] = df7[' Name'].str.lstrip()
+df7[' Name'] = df7[' Name'].str.rstrip()
+df7['Team'] = df7['Team'].str.lstrip()
+df7['Team'] = df7['Team'].str.rstrip()
+df7.head()
 
 time_list = df7[' Chip Time'].tolist()
 
