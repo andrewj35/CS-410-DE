@@ -119,20 +119,33 @@ for i in time_list:
 #print(time_mins)
 
 df7['Runner_mins'] = time_mins
-print(df7.describe(include=[np.number]))
+#print(df7.describe(include=[np.number]))
 df7.head()
 
 from pylab import rcParams
 rcParams['figure.figsize'] = 15, 5
  
-df7.boxplot(column='Runner_mins')
-plt.grid(True, axis='y')
+#df7.boxplot(column='Runner_mins')
+#plt.grid(True, axis='y')
+#plt.ylabel('Chip Time')
+#3plt.xticks([1], ['Runners'])
+
+#x = df7['Runner_mins']
+#ax = sns.distplot(x, hist=True, kde=True, rug=False, color='m', bins=25, hist_kws={'edgecolor':'black'})
+#plt.show()
+
+f_fuko = df7.loc[df7[' Gender']==' F']['Runner_mins']
+m_fuko = df7.loc[df7[' Gender']==' M']['Runner_mins']
+sns.distplot(f_fuko, hist=True, kde=True, rug=False, hist_kws={'edgecolor':'black'}, label='Female')
+sns.distplot(m_fuko, hist=False, kde=True, rug=False, hist_kws={'edgecolor':'black'}, label='Male')
+plt.legend()
+
+g_stats = df7.groupby(" Gender", as_index=True).describe()
+print(g_stats)
+
+df7.boxplot(column='Runner_mins', by=' Gender')
 plt.ylabel('Chip Time')
-plt.xticks([1], ['Runners'])
-
-
-
-
+plt.suptitle("")
 
 
 
