@@ -1,0 +1,25 @@
+B. Kafka Monitoring
+Its contents were each of the records I sent from the producer to the 
+consumer in a list form. They seem reasonable to me since it's the data
+I've sent from the producer to the consumer, though each record is in 
+an array which isn't how I originally sent it (as far as I know). That
+may just be an oversight on my part. It's also important to note that
+The topic monitoring console is only 'open' when the consumer is 
+actually running.
+
+C. Kafka Storage
+1. Run the linux command “wc bcsample.json”.  Record the output here so 
+that we can verify that your sample data file is of reasonable size.
+"wc bcsample.json" outputs: 16002 30002 400132 bcsample.json
+2. What happens if you run your consumer multiple times while only running 
+the producer once?
+It just polls for more messages from the producer. The output looks like:
+Waiting for message or event/error in poll()
+3. Before the consumer runs, where might the data go, where might it be stored?
+It might be sent into partitions aka queues in our Topic.
+4. Is there a way to determine how much data Kafka/Confluent is storing for 
+your topic? Do the Confluent monitoring tools help with this?
+I believe going to 'Data flow' and inspecting our topic will show a graph
+of the data it's stored for the topic.
+5. Create a “topic_clean.py” consumer that reads and discards all records for 
+a given topic. This type of program can be very useful during debugging.
