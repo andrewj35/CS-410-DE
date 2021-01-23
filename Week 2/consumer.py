@@ -71,8 +71,7 @@ if __name__ == '__main__':
                 record_value = msg.value()
                 data = json.loads(record_value)
                 total_count += 1
-                print("Consumed record with key {} and value {}, \
-                      and updated total count to {}"
+                print("Key {}\nValue {}\nCount: {}\n"
                       .format(record_key, record_value, total_count))
     except KeyboardInterrupt:
         pass

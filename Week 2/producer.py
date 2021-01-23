@@ -74,14 +74,17 @@ if __name__ == '__main__':
         # p.poll() serves delivery reports (on_delivery)
         # from previous produce() calls.
         #producer.poll(0)
+
     with open('bcsample.json', 'r') as file:
-        data = file.read()
-        pattern = re.compile('  {[^\}]+}', re.IGNORECASE)
-        records = pattern.findall(data)
-        for n in range(len(records)):
+#        data = file.read()
+#        pattern = re.compile('{[^\}]+}', re.IGNORECASE)
+#        hold = "".join(data.split())
+#        records = pattern.findall(hold)
+        test = json.load(file)
+        for n in test:
             record_key = 'test'
-            record_value = json.dumps(records[n].split())
-            print("Producing record: {}\t{}".format(record_key, record_value))
+            record_value = json.dumps(n)
+            print("Producing record:\n{}\n{}\n".format(record_key, record_value))
             producer.produce(topic, key=record_key, value=record_value, on_delivery=acked)
             producer.poll(0)
         file.close()
