@@ -1,0 +1,26 @@
+C.
+Oregon2015.csv => 836 rows via select count(year) from censusdata;
+
+
+python3 load_inserts.py -d data/acs2015_census_tract_data.csv -c -y 2015
+readdata: reading from File: data/acs2015_census_tract_data.csv
+Created CensusData
+Loading 74000 rows
+Finished Loading: Elapsed Time: 135.0 seconds
+
+Note: I had to change CensusTract to TractId, and Citizen to VotingAgeCitizen for the 2017 files
+
+python3 load_inserts.py -d data/Oregon2017.csv -c -y 2017
+readdata: reading from File: data/Oregon2017.csv
+Created CensusData
+Loading 836 rows
+Finished Loading: Elapsed Time: 1.317 seconds
+
+python3 load_inserts.py -d data/acs2017_census_tract_data.csv -c -y 2017
+readdata: reading from File: data/acs2017_census_tract_data.csv
+Created CensusData
+Loading 74000 rows
+Finished Loading: Elapsed Time: 126.9 seconds
+
+D.
+LEFT OFF HERE
