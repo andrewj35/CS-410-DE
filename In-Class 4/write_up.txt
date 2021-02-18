@@ -1,12 +1,11 @@
 C.
 Oregon2015.csv => 836 rows via select count(year) from censusdata;
 
-
 python3 load_inserts.py -d data/acs2015_census_tract_data.csv -c -y 2015
 readdata: reading from File: data/acs2015_census_tract_data.csv
 Created CensusData
 Loading 74000 rows
-Finished Loading: Elapsed Time: 135.0 seconds
+Finished Loading: Elapsed Time: 120.0 seconds
 
 Note: I had to change CensusTract to TractId, and Citizen to VotingAgeCitizen for the 2017 files
 
@@ -23,4 +22,71 @@ Loading 74000 rows
 Finished Loading: Elapsed Time: 126.9 seconds
 
 D.
-LEFT OFF HERE
+I put the creation of the constraints after the data is added to the table in load function
+and got the following output:
+
+python3 load_inserts.py -d data/acs2015_census_tract_data.csv -c -y 2015
+readdata: reading from File: data/acs2015_census_tract_data.csv
+Created CensusData
+Loading 74000 rows
+Finished Loading: Elapsed Time: 112.1 seconds
+
+Thus it didn't really improve load performance that much (as far as I could tell) though
+there was a slight ~8 second improvement (~7% improvement).
+
+E.
+I added an UNLOGGED table, loaded the data into it, then copied the data over to the censusdata 
+table, then added the constraints/indxes and got:
+
+python3 load_inserts.py -d data/acs2015_census_tract_data.csv -c -y 2015
+readdata: reading from File: data/acs2015_census_tract_data.csv
+Created CensusData
+Loading 74000 rows
+Finished Loading: Elapsed Time: 17.15 seconds
+
+WOW... what a huge improvement...
+
+I removed autocommit and added a commit at the end of the constraint/index creation and
+got the following output:
+
+python3 load_inserts.py -d data/acs2015_census_tract_data.csv -c -y 2015
+readdata: reading from File: data/acs2015_census_tract_data.csv
+Created CensusData
+Loading 74000 rows
+Finished Loading: Elapsed Time: 14.1 seconds
+
+F.
+I created a temp table, loaded the data into it, then copied the data over to the censusdata 
+table, then added the constraints/Indexes (with autocommit off) and got:
+
+python3 load_inserts.py -d data/acs2015_census_tract_data.csv -c -y 2015
+readdata: reading from File: data/acs2015_census_tract_data.csv
+Created CensusData
+Loading 74000 rows
+Finished Loading: Elapsed Time: 13.55 seconds
+
+I used su to edit /etc/poasgressqp/11/main/postgresqp.conf and set temp_buffers to 256MB
+and got the following output:
+
+python3 load_inserts.py -d data/acs2015_census_tract_data.csv -c -y 2015
+readdata: reading from File: data/acs2015_census_tract_data.csv
+Created CensusData
+Loading 74000 rows
+Finished Loading: Elapsed Time: 11.73 seconds
+
+G.
+ENDED HERE
+
+I. (I didn't get this far but I filled out the table as I went along)
+Method                  Code Link                   acs2015
+--------------------------------------------------------------
+Simple Inserts      |   load_inserts.py     |   120.0 seconds
+--------------------------------------------------------------
+Drop Indexes        |   load_inserts.py     |   112.1 seconds
+and Constraints     |                       |
+--------------------------------------------------------------
+Use UNLOGGED table  |   load_inserts.py     |   17.15 seconds
+--------------------------------------------------------------
+Temp Table with     |   load_inserts.py     |   13.55 seconds
+memory tuning       |   load_inserts.py     |   
+--------------------------------------------------------------

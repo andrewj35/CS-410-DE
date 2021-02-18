@@ -7,9 +7,9 @@ import argparse
 import re
 import csv
 
-DBname = "storact"
-DBuser = "sauser"
-DBpwd = "hello"
+DBname = "the_database"
+DBuser = "andrew"
+DBpwd = "wiles"
 TableName = 'CensusData'
 Datafile = "filedoesnotexist"  # name of the data file to be loaded
 CreateDB = False  # indicates whether the DB table should be (re)-created
@@ -24,7 +24,7 @@ def row2vals(row):
 
 	ret = f"""
        {Year},                          -- Year
-       {row['CensusTract']},            -- CensusTract
+       {row['CensusTract']},                -- CensusTract
        '{row['State']}',                -- State
        '{row['County']}',               -- County
        {row['TotalPop']},               -- TotalPop
@@ -100,7 +100,7 @@ def getSQLcmnds(rowlist):
 	cmdlist = []
 	for row in rowlist:
 		valstr = row2vals(row)
-		cmd = f"INSERT INTO {TableName} VALUES ({valstr});"
+		cmd = f"INSERT INTO t_tbl VALUES ({valstr});"
 		cmdlist.append(cmd)
 	return cmdlist
 
@@ -112,7 +112,7 @@ def dbconnect():
         user=DBuser,
         password=DBpwd,
 	)
-	connection.autocommit = True
+	#connection.autocommit = True
 	return connection
 
 # create the target table 
@@ -120,11 +120,12 @@ def dbconnect():
 def createTable(conn):
 
 	with conn.cursor() as cursor:
+
 		cursor.execute(f"""
         	DROP TABLE IF EXISTS {TableName};
         	CREATE TABLE {TableName} (
             	Year                INTEGER,
-              CensusTract         NUMERIC,
+                CensusTract         NUMERIC,
             	State               TEXT,
             	County              TEXT,
             	TotalPop            INTEGER,
@@ -162,10 +163,48 @@ def createTable(conn):
             	FamilyWork          DECIMAL,
             	Unemployment        DECIMAL
          	);	
-         	ALTER TABLE {TableName} ADD PRIMARY KEY (Year, CensusTract);
-         	CREATE INDEX idx_{TableName}_State ON {TableName}(State);
-    	""")
-
+        	DROP TABLE IF EXISTS t_tbl;
+        	CREATE TEMP TABLE t_tbl (
+            	Year                INTEGER,
+                CensusTract         NUMERIC,
+            	State               TEXT,
+            	County              TEXT,
+            	TotalPop            INTEGER,
+            	Men                 INTEGER,
+            	Women               INTEGER,
+            	Hispanic            DECIMAL,
+            	White               DECIMAL,
+            	Black               DECIMAL,
+            	Native              DECIMAL,
+            	Asian               DECIMAL,
+            	Pacific             DECIMAL,
+            	Citizen             DECIMAL,
+            	Income              DECIMAL,
+            	IncomeErr           DECIMAL,
+            	IncomePerCap        DECIMAL,
+            	IncomePerCapErr     DECIMAL,
+            	Poverty             DECIMAL,
+            	ChildPoverty        DECIMAL,
+            	Professional        DECIMAL,
+            	Service             DECIMAL,
+            	Office              DECIMAL,
+            	Construction        DECIMAL,
+            	Production          DECIMAL,
+            	Drive               DECIMAL,
+            	Carpool             DECIMAL,
+            	Transit             DECIMAL,
+            	Walk                DECIMAL,
+            	OtherTransp         DECIMAL,
+            	WorkAtHome          DECIMAL,
+            	MeanCommute         DECIMAL,
+            	Employed            INTEGER,
+            	PrivateWork         DECIMAL,
+            	PublicWork          DECIMAL,
+            	SelfEmployed        DECIMAL,
+            	FamilyWork          DECIMAL,
+            	Unemployment        DECIMAL
+         	);	
+                """)
 		print(f"Created {TableName}")
 
 def load(conn, icmdlist):
@@ -178,6 +217,14 @@ def load(conn, icmdlist):
 			# print (cmd)
 			cursor.execute(cmd)
 
+#                ALTER TABLE {TableName} SET LOGGED;
+		cursor.execute(f"""
+                INSERT INTO {TableName} SELECT * FROM t_tbl;
+         	CREATE INDEX idx_{TableName}_State ON {TableName}(State);
+         	ALTER TABLE {TableName} ADD PRIMARY KEY (Year, CensusTract);
+                COMMIT;
+                """)
+
 		elapsed = time.perf_counter() - start
 		print(f'Finished Loading. Elapsed Time: {elapsed:0.4} seconds')
 
@@ -185,6 +232,7 @@ def load(conn, icmdlist):
 def main():
     initialize()
     conn = dbconnect()
+
     rlis = readdata(Datafile)
     cmdlist = getSQLcmnds(rlis)
 
@@ -196,6 +244,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-
